@@ -32,22 +32,32 @@ parser.add_argument('--serial_batch_iter', dest='serial_batch_iter', type=bool, 
 parser.add_argument('--checkpoint_dir', dest='checkpoint_dir', default='./checkpoint', help='models are saved here')
 parser.add_argument('--sample_dir', dest='sample_dir', default='./sample', help='sample are saved here')
 parser.add_argument('--test_dir', dest='test_dir', default='./test', help='test sample are saved here')
-parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=100.0, help='weight on L1 term in objective')
+parser.add_argument('--L1_lambda', dest='L1_lambda', type=float, default=30, help='weight on L1 term in objective')
+parser.add_argument('--exp_name', dest='exp_name', default='test_v11_bnn', help='name of the experiment')
 
 args = parser.parse_args()
 
 def main(_):
     if not os.path.exists(args.checkpoint_dir):
         os.makedirs(args.checkpoint_dir)
+    if not os.path.exists(args.checkpoint_dir+'/'+args.exp_name):
+        os.makedirs(args.checkpoint_dir+'/'+args.exp_name)
+
     if not os.path.exists(args.sample_dir):
         os.makedirs(args.sample_dir)
+    if not os.path.exists(args.sample_dir+'/'+args.exp_name):
+        os.makedirs(args.sample_dir+'/'+args.exp_name)
+
     if not os.path.exists(args.test_dir):
         os.makedirs(args.test_dir)
+    if not os.path.exists(args.test_dir+'/'+args.exp_name):
+        os.makedirs(args.test_dir+'/'+args.exp_name)
 
     with tf.Session() as sess:
         model = pix2pix(sess, image_size=args.fine_size, batch_size=args.batch_size,
                         output_size=args.fine_size, dataset_name=args.dataset_name,
-                        checkpoint_dir=args.checkpoint_dir, sample_dir=args.sample_dir)
+                        checkpoint_dir=args.checkpoint_dir+'/'+args.exp_name, sample_dir=args.sample_dir+'/'+args.exp_name,
+                        input_c_dim=args.input_nc, output_c_dim=args.output_nc)
 
         if args.phase == 'train':
             model.train(args)
